@@ -14,10 +14,10 @@ imageWidth = 150
 imageHeight = 250
 [[params.profileMode.buttons]]
 name = "🎁 나의 위시리스트"
-url = "/wishlist/"
+url = "/hye-eun/wishlist/"
 [[params.profileMode.buttons]]
 name = "📅 일정 정보"
-url = "/schedule/"
+url = "/hye-eun/schedule/"
 [[params.socialIcons]]
 name = "instagram"
 url = "https://instagram.com/hen"

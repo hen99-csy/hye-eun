@@ -1,11 +1,36 @@
-baseURL = 'https://hen99-csy.github.io/hye-eun/' 
-
+baseURL = 'https://hen99-csy.github.io/hye-eun/'
 languageCode = 'ko-KR'
-title = '혜은의 홈페이지'
+title = '혜은의 공간'
 theme = 'PaperMod'
 
 [params]
-    author = "혜은"
+  author = "혜은"
+  defaultTheme = "auto" # 다크모드/라이트모드 자동
 
-[author]
-    name = "혜은"
+# 1. 프로필 모드 설정 (메인 화면을 프로필로 만듭니다)
+[params.profileMode]
+  enabled = true
+  title = "안녕하세요! 개발자 혜은입니다 👩‍💻"
+  subtitle = "이곳은 저의 포트폴리오와 일상, 그리고 위시리스트를 기록하는 공간입니다. 방문해 주셔서 감사합니다!"
+  
+  # 프로필 사진 설정 (static 폴더 안에 profile.jpg 이미지를 넣어주세요!)
+  imageUrl = "/profile.jpg" 
+  imageWidth = 150
+  imageHeight = 150
+  
+  # 메인 화면에 들어갈 버튼들 (위시리스트, 일정 정보)
+  [[params.profileMode.buttons]]
+    name = "🎁 나의 위시리스트"
+    url = "/wishlist/"
+  
+  [[params.profileMode.buttons]]
+    name = "📅 일정 정보"
+    url = "/schedule/"
+
+# 2. SNS 아이콘 설정 (원하는 링크로 바꿔주세요)
+[[params.socialIcons]]
+    name = "instagram"
+    url = "https://instagram.com/혜은님아이디"
+[[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/hen99-csy"

@@ -14,7 +14,7 @@ theme = 'PaperMod'
   subtitle = "이곳은 저의 포트폴리오와 일상, 그리고 위시리스트를 기록하는 공간입니다. 방문해 주셔서 감사합니다!"
   
   # 프로필 사진 설정 (static 폴더 안에 profile.jpg 이미지를 넣어주세요!)
-  imageUrl = "https://hen99-csy.github.io/hye-eun/profile.jpg"
+  imageUrl = "profile.jpg"  # 맨 앞의 슬래시(/)를 빼주세요!
   imageWidth = 150
   imageHeight = 150
   

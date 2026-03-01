@@ -29,40 +29,44 @@
 
         <main class="flex-1 p-4 pb-24 overflow-y-auto">
             
-            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100 mb-6">
+            <div class="bg-stone-50 p-4 rounded-2xl border border-stone-100 mb-6 shadow-sm">
                 <h2 class="text-sm font-bold text-stone-700 mb-3">✨ 새로운 위시템 추가</h2>
                 <form id="addForm" class="space-y-3">
-                    <input type="text" id="itemName" placeholder="상품명을 입력하세요 (예: 아이패드)" required
-                        class="w-full px-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
                     
+                    <input type="url" id="itemUrl" placeholder="🔗 상품 링크를 붙여넣으세요 (자동 크롤링)" required
+                        class="w-full px-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all border-amber-300 bg-amber-50 placeholder-amber-400">
+                    <p id="crawlingStatus" class="text-xs text-stone-500 px-1 hidden">상품 정보를 불러오는 중입니다... ⏳</p>
+
+                    <input type="text" id="itemName" placeholder="상품명 (자동으로 입력됩니다)" required
+                        class="w-full px-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
+
                     <div class="flex gap-2">
                         <select id="itemCategory" class="w-1/3 px-3 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none">
                             <option value="전자기기">🎧 기기</option>
                             <option value="도서/자기계발">📚 도서</option>
                             <option value="패션">👕 패션</option>
+                            <option value="기타">📦 기타</option>
                         </select>
-                        <input type="text" id="itemOption" placeholder="옵션 (예: 실버, 256GB)" 
-                            class="flex-1 px-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <input type="text" id="itemOption" placeholder="상세 옵션 (예: 256GB)" 
+                            class="flex-1 px-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all">
                     </div>
                     
-                    <button type="submit" id="submitBtn" class="w-full py-2.5 bg-stone-800 text-white text-sm font-bold rounded-xl hover:bg-stone-700 transition-colors">
+                    <button type="submit" id="submitBtn" class="w-full py-2.5 mt-2 bg-stone-800 text-white text-sm font-bold rounded-xl hover:bg-stone-700 transition-colors shadow-md">
                         리스트에 담기 ➕
                     </button>
                 </form>
             </div>
 
-            <div id="listContainer" class="space-y-3">
+            <div id="listContainer" class="space-y-4">
                 <p class="text-center text-sm text-stone-400 py-10">데이터를 불러오는 중입니다... ⏳</p>
             </div>
         </main>
     </div>
 
     <script type="module">
-        // 1. Firebase 라이브러리 가져오기 (C#의 using 문과 비슷합니다)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 2. 혜은 님의 DB 열쇠 (Connection String)
         const firebaseConfig = {
             apiKey: "AIzaSyAViF2fDT8xwMmj6bqUkcLNpFvczscHkps",
             authDomain: "hye-eun-wishlist.firebaseapp.com",
@@ -73,20 +77,50 @@
             measurementId: "G-13ZMGV8BE2"
         };
 
-        // 3. 앱 및 DB 초기화
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const wishlistRef = collection(db, "wishlist"); // "wishlist"라는 이름의 테이블(컬렉션) 지정
+        const wishlistRef = collection(db, "wishlist");
 
         const addForm = document.getElementById('addForm');
         const submitBtn = document.getElementById('submitBtn');
         const listContainer = document.getElementById('listContainer');
+        const itemUrlInput = document.getElementById('itemUrl');
+        const itemNameInput = document.getElementById('itemName');
+        const crawlingStatus = document.getElementById('crawlingStatus');
+
+        // 🟢 [크롤링 매직!] URL 입력칸에서 포커스가 벗어날 때 실행
+        itemUrlInput.addEventListener('blur', async () => {
+            const url = itemUrlInput.value.trim();
+            if (!url) return;
+
+            crawlingStatus.classList.remove('hidden');
+            itemNameInput.value = ""; 
+            itemNameInput.placeholder = "크롤링 중입니다... ⏳";
+
+            try {
+                // Microlink 무료 API를 통해 URL의 메타데이터(제목) 긁어오기
+                const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+                const data = await response.json();
+
+                if (data.status === 'success' && data.data.title) {
+                    itemNameInput.value = data.data.title; // 긁어온 제목을 상품명에 쏙!
+                    crawlingStatus.innerText = "✅ 성공적으로 정보를 불러왔습니다!";
+                    crawlingStatus.classList.replace('text-stone-500', 'text-green-600');
+                } else {
+                    throw new Error("크롤링 데이터 없음");
+                }
+            } catch (error) {
+                console.error("크롤링 에러:", error);
+                crawlingStatus.innerText = "❌ 정보를 가져오지 못했습니다. 상품명을 직접 적어주세요.";
+                crawlingStatus.classList.replace('text-stone-500', 'text-red-500');
+                itemNameInput.placeholder = "직접 상품명을 입력하세요";
+            }
+        });
 
         // 🟢 [READ] 실시간 데이터 불러오기
-        const q = query(wishlistRef, orderBy("createdAt", "desc")); // 최신순 정렬
+        const q = query(wishlistRef, orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
-            listContainer.innerHTML = ''; // 화면 한 번 지우기
-            
+            listContainer.innerHTML = ''; 
             if (snapshot.empty) {
                 listContainer.innerHTML = '<p class="text-center text-sm text-stone-400 py-10">아직 담아둔 위시리스트가 없어요.<br>위에서 새로운 아이템을 추가해 보세요!</p>';
                 return;
@@ -94,50 +128,58 @@
 
             snapshot.forEach((docSnap) => {
                 const item = docSnap.data();
-                const id = docSnap.id; // DB가 부여한 고유 ID (PK)
-                
+                const id = docSnap.id; 
                 const card = document.createElement('div');
-                card.className = "p-4 bg-white rounded-2xl border border-stone-100 shadow-sm flex flex-col gap-2 relative";
+                card.className = "p-5 bg-white rounded-2xl border border-stone-100 shadow-sm flex flex-col gap-3 relative hover:shadow-md transition-shadow";
+                
+                const linkButtonHtml = item.url ? 
+                    `<a href="${item.url}" target="_blank" class="block text-center py-2.5 mt-1 bg-amber-50 text-amber-700 text-sm font-bold rounded-xl hover:bg-amber-100 transition-colors border border-amber-100">🛒 상품 보러가기</a>` : '';
+
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
-                        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-md">${item.category}</span>
-                        <button data-id="${id}" class="delete-btn text-stone-300 hover:text-red-500 text-sm transition-colors">🗑️</button>
+                        <span class="text-xs font-bold text-stone-600 bg-stone-100 px-2 py-1 rounded-md">${item.category}</span>
+                        <button data-id="${id}" class="delete-btn text-stone-300 hover:text-red-500 text-lg transition-colors leading-none">&times;</button>
                     </div>
-                    <h3 class="font-bold text-stone-800">${item.name}</h3>
-                    ${item.option ? `<p class="text-sm text-stone-500 bg-stone-50 p-2 rounded-lg">옵션: ${item.option}</p>` : ''}
+                    <h3 class="font-bold text-stone-800 text-lg leading-tight">${item.name}</h3>
+                    ${item.option ? `<p class="text-sm text-stone-500 bg-stone-50 px-3 py-2 rounded-lg border border-stone-100">✨ 옵션: ${item.option}</p>` : ''}
+                    ${linkButtonHtml}
                 `;
                 listContainer.appendChild(card);
             });
         });
 
-        // 🔵 [CREATE] 데이터 추가하기 (INSERT)
+        // 🔵 [CREATE] 데이터 저장
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             submitBtn.textContent = "저장 중... ⏳";
             submitBtn.disabled = true;
 
             try {
                 await addDoc(wishlistRef, {
-                    name: document.getElementById('itemName').value,
+                    url: itemUrlInput.value,
+                    name: itemNameInput.value,
                     category: document.getElementById('itemCategory').value,
                     option: document.getElementById('itemOption').value,
-                    createdAt: serverTimestamp() // 구글 서버의 정확한 시간 기록
+                    createdAt: serverTimestamp()
                 });
-                addForm.reset(); // 성공하면 폼 비우기
+                addForm.reset(); 
+                crawlingStatus.classList.add('hidden'); // 성공 메시지 숨기기
+                crawlingStatus.classList.replace('text-green-600', 'text-stone-500');
+                crawlingStatus.classList.replace('text-red-500', 'text-stone-500');
+                crawlingStatus.innerText = "상품 정보를 불러오는 중입니다... ⏳";
             } catch (error) {
                 console.error("저장 에러:", error);
-                alert("데이터베이스 권한이 막혀있거나 오류가 발생했습니다.");
+                alert("데이터베이스 오류가 발생했습니다.");
             } finally {
                 submitBtn.textContent = "리스트에 담기 ➕";
                 submitBtn.disabled = false;
             }
         });
 
-        // 🔴 [DELETE] 데이터 삭제하기
+        // 🔴 [DELETE] 데이터 삭제
         listContainer.addEventListener('click', async (e) => {
             if (e.target.classList.contains('delete-btn')) {
-                if(confirm('이 아이템을 진짜 삭제할까요?')) {
+                if(confirm('이 아이템을 리스트에서 지울까요?')) {
                     const id = e.target.getAttribute('data-id');
                     await deleteDoc(doc(db, "wishlist", id));
                 }

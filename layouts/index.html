@@ -1,0 +1,50 @@
+{{ define "main" }}
+<main class="main">
+    <div class="post-content">
+        <h1>👋 혜은의 공간에 오신 것을 환영합니다!</h1>
+        
+        <section>
+            <h2>👩‍💻 About Me</h2>
+            <p>C# 애플리케이션을 개발하고, 사람들의 마음을 돕는 프로그램을 이끌며, 다양한 콘텐츠를 만들어가는 혜은입니다.</p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>✨ 나의 위시리스트</h2>
+            <ul>
+                {{ range .Site.Data.wishlist }}
+                    <li>
+                        <strong>[{{ .status }}]</strong> {{ .title }} 
+                        <small>({{ .category }})</small>
+                    </li>
+                {{ end }}
+            </ul>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>📅 다가오는 스케줄</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>시간</th>
+                        <th>일정</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Site.Data.schedule }}
+                        <tr>
+                            <td>{{ .date }}</td>
+                            <td>{{ .time }}</td>
+                            <td>{{ .event }}</td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </section>
+    </div>
+</main>
+{{ end }}

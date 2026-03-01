@@ -5,8 +5,6 @@ theme = "PaperMod"
 [params]
 author = "혜은"
 defaultTheme = "auto"
-[params.assets]
-customCSS = ["css/custom.css"]
 [params.profileMode]
 enabled = true
 title = "안녕하세요! 개발자 혜은입니다 👩‍💻"

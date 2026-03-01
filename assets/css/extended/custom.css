@@ -1,0 +1,5 @@
+/* 프로필 사진을 둥근 직사각형으로 만들고, 찌그러짐 방지 */
+.profile img {
+    border-radius: 20px !important; /* 모서리 둥글기 (숫자가 클수록 둥글어짐) */
+    object-fit: cover !important;   /* 사진 비율이 깨지지 않게 꽉 채움 */
+}

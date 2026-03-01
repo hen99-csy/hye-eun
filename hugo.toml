@@ -1,9 +1,9 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://hen99-csy.github.io/hye-eun/' 
+
 languageCode = 'ko-KR'
 title = '혜은의 홈페이지'
 theme = 'PaperMod'
 
-# ⬇️ 테마 오류 해결을 위해 추가된 부분 ⬇️
 [params]
     author = "혜은"
 

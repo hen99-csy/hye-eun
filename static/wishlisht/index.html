@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>혜은의 인터랙티브 위시리스트</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stone: { 50: '#fafaf9', 100: '#f5f5f4', 800: '#292524' },
+                        amber: { 600: '#d97706', 700: '#b45309' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            height: 250px;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <header class="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">🎁 혜은의 위시리스트 대시보드</h1>
+                <p class="text-stone-600">아이템을 관리하고 카테고리별 비중을 확인하는 대시보드입니다.</p>
+            </div>
+            <div class="bg-amber-50 text-amber-700 px-4 py-2 rounded-full font-bold border border-amber-200">
+                관리자 모드 활성화
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="space-y-8">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                    <h2 class="text-xl font-bold mb-4">📊 카테고리 통계</h2>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100">
+                    <h2 class="text-xl font-bold mb-4">✨ 새 상품 추가</h2>
+                    <form id="addItemForm" class="space-y-4">
+                        <input type="url" id="itemUrl" placeholder="상품 URL 입력" class="w-full p-2 border rounded-lg" required>
+                        <input type="text" id="itemName" placeholder="상품명 (자동/수동)" class="w-full p-2 border rounded-lg" required>
+                        <input type="text" id="itemOption" placeholder="상세 옵션 (색상, 사이즈 등)" class="w-full p-2 border rounded-lg">
+                        <select id="itemCategory" class="w-full p-2 border rounded-lg">
+                            <option>🎧 전자기기</option>
+                            <option>📚 도서/자기계발</option>
+                            <option>👕 패션/잡화</option>
+                        </select>
+                        <button type="submit" class="w-full py-3 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700">리스트에 추가</button>
+                    </form>
+                </section>
+            </div>
+
+            <div class="lg:col-span-2">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-stone-100 min-h-full">
+                    <h2 class="text-2xl font-bold mb-6">🛍️ 위시리스트 목록</h2>
+                    <div id="wishlistGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 초기 데이터 (content/wishlist.md 내용 기반)
+        let items = [
+            { id: 1, category: '전자기기', name: '소니 WH-1000XM5', option: '플래티넘 실버', state: '고민 중' },
+            { id: 2, category: '도서/자기계발', name: 'C# 완벽 가이드', option: '양장본', state: '구매 시급' }
+        ];
+
+        function renderGrid() {
+            const grid = document.getElementById('wishlistGrid');
+            grid.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "p-5 bg-stone-50 rounded-xl border border-stone-200 hover:border-amber-500 transition-all";
+                card.innerHTML = `
+                    <div class="text-xs font-bold text-amber-600 mb-2">${item.category}</div>
+                    <h3 class="font-bold text-lg mb-2">${item.name}</h3>
+                    <div class="text-sm text-stone-600">옵션: ${item.option}</div>
+                    <div class="mt-4 text-xs font-semibold px-2 py-1 bg-white inline-block rounded border">${item.state}</div>
+                `;
+                grid.appendChild(card);
+            });
+            updateChart();
+        }
+
+        let chart;
+        function updateChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const counts = {};
+            items.forEach(i => counts[i.category] = (counts[i.category] || 0) + 1);
+            
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{ data: Object.values(counts), backgroundColor: ['#d97706', '#fbbf24', '#78716c'] }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+        }
+
+        document.getElementById('addItemForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newItem = {
+                id: Date.now(),
+                name: document.getElementById('itemName').value,
+                category: document.getElementById('itemCategory').value.split(' ')[1],
+                option: document.getElementById('itemOption').value,
+                state: '🔥 신규 추가'
+            };
+            items.unshift(newItem);
+            renderGrid();
+            e.target.reset();
+        });
+
+        renderGrid();
+    </script>
+</body>
+</html>

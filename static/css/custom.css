@@ -1,0 +1,9 @@
+/* 프로필 사진 모양 변경 */
+.profile img {
+    /* 모서리 둥글기 설정 (숫자가 클수록 더 둥글어집니다) */
+    border-radius: 30px !important; 
+    
+    /* 사진을 직사각형 비율로 강제 조정 (필요한 경우 주석 해제) */
+    /* object-fit: cover; */
+    /* height: auto; */
+}

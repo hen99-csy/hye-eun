@@ -5,13 +5,15 @@ theme = "PaperMod"
 [params]
 author = "혜은"
 defaultTheme = "auto"
+[params.assets]
+customCSS = ["css/custom.css"]
 [params.profileMode]
 enabled = true
 title = "안녕하세요! 개발자 혜은입니다 👩‍💻"
 subtitle = "이곳은 저의 포트폴리오와 일상, 그리고 위시리스트를 기록하는 공간입니다. 방문해 주셔서 감사합니다!"
 imageUrl = "profile.jpg"
 imageWidth = 150
-imageHeight = 150
+imageHeight = 250
 [[params.profileMode.buttons]]
 name = "🎁 나의 위시리스트"
 url = "/wishlist/"

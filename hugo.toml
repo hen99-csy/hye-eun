@@ -5,7 +5,7 @@ theme = 'PaperMod'
 
 # ⬇️ 테마 오류 해결을 위해 추가된 부분 ⬇️
 [params]
-author = "혜은"
+    author = "혜은"
 
 [author]
-name = "혜은"
+    name = "혜은"
